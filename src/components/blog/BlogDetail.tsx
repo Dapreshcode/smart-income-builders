@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { MDXComponents } from "./MDXcomponent";
+import { EmailCapture } from "@/components/mdx/EmailCapture";
 import TableOfContentsWrapper from "./TableOfContentWrapper";
 import ArticleReactionBar from "./ArticleReactionBar";
 
@@ -20,6 +21,18 @@ export default function BlogDetail({
   const title = post.frontmatter.title || "Untitled Post";
   const date = post.frontmatter.date || "";
   const image = post.frontmatter.image || "/p1.jpg";
+
+  const mdxComponentsWithContext = {
+  ...MDXComponents,
+  EmailCapture: (props: any) => (
+    <EmailCapture
+      {...props}
+      source="blog-inline"
+      category={post.frontmatter.category || null}
+      postSlug={post.slug || post.frontmatter.slug || null}
+    />
+  ),
+};
 
   return (
     <div className="bg-[#0b0f19] text-white min-h-screen">
@@ -112,7 +125,7 @@ export default function BlogDetail({
                 </Link>
 
                 <Link
-                  href="/tools"
+                  href="/resources"
                   className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 hover:-translate-y-0.5"
                 >
                   Explore Tools
@@ -133,7 +146,7 @@ export default function BlogDetail({
               prose-p:leading-8
               prose-li:leading-8"
             >
-              <MDXRemote source={post.content} components={MDXComponents} />
+              <MDXRemote source={post.content} components={mdxComponentsWithContext} />
             </div>
 
             {pathNavigator}
@@ -172,7 +185,7 @@ export default function BlogDetail({
                 </Link>
 
                 <Link
-                  href="/tools"
+                  href="/resources"
                   className="group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10 hover:-translate-y-1"
                 >
                   <p className="text-xs uppercase tracking-[0.16em] text-orange-300 mb-2">

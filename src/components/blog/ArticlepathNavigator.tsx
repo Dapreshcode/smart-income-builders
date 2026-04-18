@@ -26,7 +26,7 @@ export default function ArticlePathNavigator({
   if (!current?.frontmatter?.path) return null
 
   return (
-    <section className="mt-12 rounded-[28px] border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.03] p-6 sm:p-7 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+    <section className="mt-12 rounded-[28px] border border-white/10 bg-linear-to-br from-white/10 to-white/[0.03] p-6 sm:p-7 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
       <div className="flex flex-wrap items-center gap-3">
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-orange-400/20 bg-orange-500/10 text-orange-300">
           <Layers3 className="h-4 w-4" />
@@ -52,7 +52,7 @@ export default function ArticlePathNavigator({
         {previous ? (
           <Link
             href={`/blog/${previous.slug}`}
-            className="group rounded-[22px] border border-white/10 bg-white/5 p-5 transition hover:-translate-y-1 hover:bg-white/10"
+            className="group rounded-[22px] border border-white/10 bg-orange-500/10 p-5 transition hover:-translate-y-1 hover:bg-white/10"
           >
             <p className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-orange-300">
               <ArrowLeft className="h-3.5 w-3.5" />
