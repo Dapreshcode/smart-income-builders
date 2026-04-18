@@ -87,7 +87,7 @@ export default function AboutSection() {
             <div className="mt-8">
               <Link
                 href="/blog"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-orange-300"
+                className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-orange-500/10 px-5 py-3 text-sm font-medium text-white/85 transition hover:bg-white/10 hover:text-orange-300"
               >
                 Explore the blog
                 <ArrowRight className="h-4 w-4" />

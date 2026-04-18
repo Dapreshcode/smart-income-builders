@@ -74,6 +74,23 @@ export default function StartHerePage() {
           </div>
         </section>
 
+        <div className="mt-10 flex flex-wrap items-center gap-5 text-sm text-gray-300">
+  <div className="flex items-center gap-2">
+    <span className="h-2 w-2 rounded-full bg-orange-400" />
+    <span>Beginners building their first website</span>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="h-2 w-2 rounded-full bg-orange-400" />
+    <span>Creators growing traffic and email</span>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="h-2 w-2 rounded-full bg-orange-400" />
+    <span>Bloggers ready to monetize properly</span>
+  </div>
+</div>
+
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-10 max-w-2xl">
             <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-orange-300">
@@ -102,16 +119,22 @@ export default function StartHerePage() {
                     <Icon className="h-5 w-5" />
                   </div>
 
-                  <h3 className="text-xl font-semibold text-white transition group-hover:text-orange-200">
+                                  <h3 className="text-xl font-semibold text-white transition group-hover:text-orange-200">
                     {item.title}
                   </h3>
+
+                  {item.level && (
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-white/45">
+                      {item.level}
+                    </p>
+                  )}
 
                   <p className="mt-3 text-sm leading-7 text-gray-300">
                     {item.description}
                   </p>
 
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-orange-300">
-                    Go there
+                     Explore path
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
                   </div>
                 </Link>
@@ -142,9 +165,17 @@ export default function StartHerePage() {
                   href={guide.href}
                   className="group rounded-[28px] border border-white/10 bg-[#0f172a]/60 p-6 shadow-[0_18px_50px_rgba(0,0,0,0.25)] transition hover:-translate-y-1 hover:bg-[#111827]"
                 >
-                  <p className="mb-3 text-[11px] uppercase tracking-[0.2em] text-orange-300">
+                 <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-orange-300">
                     {guide.category}
                   </p>
+
+                  {guide.level && (
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-white/60">
+                      {guide.level}
+                    </span>
+                  )}
+                </div>
 
                   <h3 className="text-xl font-semibold leading-tight text-white transition group-hover:text-orange-200">
                     {guide.title}

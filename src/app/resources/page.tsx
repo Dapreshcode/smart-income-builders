@@ -1,74 +1,10 @@
 // app/tools/page.tsx
 import Link from "next/link";
 import Script from "next/script";
-import { ArrowRight, Wrench, Globe, Mail, Sparkles, Palette } from "lucide-react";
+import { ArrowRight, Wrench } from "lucide-react";
+import { toolCategories } from "@/data/tools";
 
-const toolCategories = [
-  {
-    title: "Blogging & Website Tools",
-    icon: Globe,
-    tools: [
-      {
-        name: "Hosting Platform",
-        description:
-          "The foundation for speed, uptime, trust, and performance.",
-        note: "Use this for launching and running your blog reliably.",
-        cta: "See hosting options",
-        href: "#",
-      },
-      {
-        name: "Content Management Setup",
-        description:
-          "Your publishing system should be easy to manage and scalable.",
-        note: "This affects how fast you can publish and maintain content.",
-        cta: "Learn more",
-        href: "#",
-      },
-    ],
-  },
-  {
-    title: "Email Marketing",
-    icon: Mail,
-    tools: [
-      {
-        name: "Email Platform",
-        description:
-          "Build an audience you own and stay in touch beyond search traffic.",
-        note: "Great for newsletters, lead magnets, and reader retention.",
-        cta: "Explore email tools",
-        href: "#",
-      },
-    ],
-  },
-  {
-    title: "Content & AI Tools",
-    icon: Sparkles,
-    tools: [
-      {
-        name: "Research & Writing Tools",
-        description:
-          "Helpful for idea generation, outlining, and improving productivity.",
-        note: "Best used to support your thinking, not replace originality.",
-        cta: "Explore content tools",
-        href: "#",
-      },
-    ],
-  },
-  {
-    title: "Design & Creation",
-    icon: Palette,
-    tools: [
-      {
-        name: "Design Tools",
-        description:
-          "Useful for blog graphics, thumbnails, layouts, and visual assets.",
-        note: "Strong visuals improve clarity and engagement.",
-        cta: "See design tools",
-        href: "#",
-      },
-    ],
-  },
-];
+
 
 export const metadata = {
   title: "Tools & Resources",

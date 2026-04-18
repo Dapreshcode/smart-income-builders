@@ -18,7 +18,8 @@ import {
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Blog", href: "/blog" },
-  { name: "Resources", href: "/resources" }
+  { name: "Resources", href: "/resources" },
+  { name: "Saved", href: "/saved" },
 ]
 
 export default function Navbar() {

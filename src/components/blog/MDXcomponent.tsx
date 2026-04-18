@@ -1,6 +1,8 @@
 import { AffiliateBox } from "@/components/mdx/AffiliateBox";
 import { EmailCapture } from "@/components/mdx/EmailCapture";
+import ImageBox from "@/components/shared/ImageBox"
 import { CTA } from "@/components/mdx/Cta";
+
 
 const MDXComponents = {
  h2: (props: any) => (
@@ -58,6 +60,7 @@ p: (props: any) => (
 
   CTA,
   AffiliateBox,
+  ImageBox,
   EmailCapture,
 };
 

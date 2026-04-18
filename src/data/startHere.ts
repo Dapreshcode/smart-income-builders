@@ -1,104 +1,94 @@
-// src/data/startHere.ts
-import {
-  Laptop2,
-  DollarSign,
-  Wrench,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
+import { Globe, Compass, Mail, Coins } from "lucide-react"
 
-export type StartPath = {
-  title: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-};
-
-export type FeaturedGuide = {
-  title: string;
-  category: string;
-  description: string;
-  href: string;
-};
-
-export type RecommendedToolPreview = {
-  name: string;
-  description: string;
-  href: string;
-};
-
-export const startHerePaths: StartPath[] = [
+export const startHerePaths = [
   {
-    title: "Start a Blog",
+    title: "Start Your Blog",
     description:
-      "Learn the right foundation for building a blog that can grow into a real business.",
+      "Learn the foundations of building a website, choosing a niche, and publishing useful content.",
     href: "/blog/how-to-start-a-blog",
-    icon: Laptop2,
-  },
-  {
-    title: "Make Money Online",
-    description:
-      "Understand practical monetization methods and how to build income with content.",
-    href: "/blog/how-to-monetize-a-blog",
-    icon: DollarSign,
-  },
-  {
-    title: "Tools & Resources",
-    description:
-      "See the tools, platforms, and resources recommended throughout this website.",
-    href: "/tools",
-    icon: Wrench,
+    icon: Globe,
+    level: "Beginner",
+    order: 1,
   },
   {
     title: "Grow Traffic",
     description:
-      "Learn how SEO, internal linking, and content strategy bring the right readers in.",
-    href: "/blog/seo-for-beginners",
-    icon: TrendingUp,
+      "Understand how to attract readers through SEO, content structure, and discoverability.",
+    href: "/blog",
+    icon: Compass,
+    level: "Beginner",
+    order: 2,
   },
-];
-
-export const featuredGuides: FeaturedGuide[] = [
   {
-    title: "How to Start a Blog in 2026",
-    category: "Blogging",
+    title: "Build Your Email List",
     description:
-      "A beginner-friendly guide to setting up your blog the right way from day one.",
+      "Turn casual readers into subscribers and build an audience you can reach directly.",
+    href: "/category/email-marketing",
+    icon: Mail,
+    level: "Intermediate",
+    order: 3,
+  },
+  {
+    title: "Monetize Your Content",
+    description:
+      "Explore affiliate marketing, systems, and practical online income methods.",
+    href: "/category/make-money-online",
+    icon: Coins,
+    level: "Intermediate",
+    order: 4,
+  },
+]
+
+export const featuredGuides = [
+  {
+    title: "How to Start a Blog",
+    description:
+      "A practical beginner guide to launching your blog and building a platform you own.",
     href: "/blog/how-to-start-a-blog",
+    category: "Blogging",
+    level: "Beginner",
+    order: 1,
   },
   {
-    title: "How to Monetize a Blog from Day One",
-    category: "Monetization",
+    title: "Build Smart Email Funnels That Convert",
     description:
-      "Learn the monetization paths that fit a modern content website.",
-    href: "/blog/how-to-monetize-a-blog",
+      "Learn how to turn readers into subscribers and build a stronger long-term audience.",
+    href: "/blog/email-funnels",
+    category: "Email Marketing",
+    level: "Intermediate",
+    order: 2,
   },
   {
-    title: "SEO Basics for Beginners",
-    category: "SEO",
+    title: "Affiliate Marketing for Beginners",
     description:
-      "Understand the fundamentals of getting your content discovered through search.",
-    href: "/blog/seo-for-beginners",
+      "Understand how affiliate systems work and how to structure content that monetizes properly.",
+    href: "/blog/affiliate-marketing-for-beginners-2026-guide",
+    category: "Make Money Online",
+    level: "Beginner",
+    order: 3,
   },
-];
+]
 
-export const recommendedToolsPreview: RecommendedToolPreview[] = [
+export const recommendedToolsPreview = [
   {
-    name: "Blog Hosting",
+    name: "Website Setup Stack",
     description:
-      "Reliable hosting is the first major decision for performance, trust, and growth.",
+      "The core tools needed to launch, manage, and grow a reliable website.",
     href: "/tools",
+    order: 1,
   },
   {
-    name: "Email Platform",
+    name: "Email Marketing Stack",
     description:
-      "An email list lets you build an audience you own, not just borrowed traffic.",
+      "The tools that help you capture subscribers and build an audience you own.",
     href: "/tools",
+    order: 2,
   },
   {
-    name: "Content & AI Tools",
+    name: "Content Workflow Stack",
     description:
-      "Use the right tools to research, write, and refine content more efficiently.",
+      "Research, writing, and productivity tools that support consistent publishing.",
     href: "/tools",
+    order: 3,
   },
-];
+]

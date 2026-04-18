@@ -8,7 +8,7 @@ const Features = () => {
   const data = [
     {
       id: 1,
-      title: "Make Money Online",
+      title: "Online Income Systems",
       desc: "Step-by-step systems to start earning income online.",
       icon: DollarSign,
     },
@@ -20,7 +20,7 @@ const Features = () => {
     },
     {
       id: 3,
-      title: "Tools & Growth Guides",
+      title: "Growth Guides",
       desc: "Discover tools and frameworks to scale faster.",
       icon: Wrench,
     },

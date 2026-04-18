@@ -6,11 +6,16 @@ import TableOfContentsWrapper from "./TableOfContentWrapper";
 import ArticleReactionBar from "./ArticleReactionBar";
 
 type BlogDetailProps = {
-  post: any;
-  bookmarkButton?: React.ReactNode;
-};
+  post: any
+  bookmarkButton?: React.ReactNode
+  pathNavigator?: React.ReactNode
+}
 
-export default function BlogDetail({ post, bookmarkButton }: BlogDetailProps) {
+export default function BlogDetail({
+  post,
+  bookmarkButton,
+  pathNavigator,
+}: BlogDetailProps) {
   const category = post.frontmatter.category || "Article";
   const title = post.frontmatter.title || "Untitled Post";
   const date = post.frontmatter.date || "";
@@ -42,14 +47,21 @@ export default function BlogDetail({ post, bookmarkButton }: BlogDetailProps) {
             {bookmarkButton}
           </div>
 
-          <div className="mt-6">
-            <Link
-              href="/start-here"
-              className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15 hover:text-orange-200"
-            >
-              New here? Start with the full roadmap →
-            </Link>
-          </div>
+         <div className="mt-6 flex flex-wrap items-center gap-4">
+  <Link
+    href="/start-here"
+    className="inline-flex items-center rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15 hover:text-orange-200"
+  >
+    New here? Start with the full roadmap →
+  </Link>
+
+  <Link
+    href="/saved"
+    className="text-sm text-white/60 hover:text-white transition"
+  >
+    View saved articles →
+  </Link>
+</div>
         </div>
       </section>
 
@@ -123,6 +135,8 @@ export default function BlogDetail({ post, bookmarkButton }: BlogDetailProps) {
             >
               <MDXRemote source={post.content} components={MDXComponents} />
             </div>
+
+            {pathNavigator}
 
             <ArticleReactionBar slug={post.slug} title={post.frontmatter.title} />
 
