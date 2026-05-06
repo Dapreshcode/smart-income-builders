@@ -1,6 +1,6 @@
 "use client"
 
-
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
@@ -26,26 +26,42 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isDark, setIsDark] = useState(true)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 const pathname = usePathname()
 
   useEffect(() => {
-   
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
+  const onScroll = () => {
+    setIsScrolled(window.scrollY > 20)
+  }
 
-    const savedTheme = localStorage.getItem("theme")
-    if (savedTheme === "light") {
-      setIsDark(false)
-      document.documentElement.classList.remove("dark")
-    } else {
-      setIsDark(true)
-      document.documentElement.classList.add("dark")
-    }
+  const savedTheme = localStorage.getItem("theme")
+  if (savedTheme === "light") {
+    setIsDark(false)
+    document.documentElement.classList.remove("dark")
+  } else {
+    setIsDark(true)
+    document.documentElement.classList.add("dark")
+  }
 
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+  const supabase = createClient()
+
+  supabase.auth.getUser().then(({ data }) => {
+    setUserEmail(data.user?.email ?? null)
+  })
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUserEmail(session?.user?.email ?? null)
+  })
+
+  window.addEventListener("scroll", onScroll)
+
+  return () => {
+    window.removeEventListener("scroll", onScroll)
+    subscription.unsubscribe()
+  }
+}, [])
 
   const toggleTheme = () => {
     const nextDark = !isDark
@@ -151,41 +167,30 @@ const pathname = usePathname()
               </nav>
 
               {/* right */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleTheme}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
-                  aria-label="Toggle theme"
-                >
-                  {isDark ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                </button>
+              {userEmail ? (
+  <Link
+    href="/account"
+    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+  >
+    Account
+  </Link>
+) : (
+  <>
+    <Link
+      href="/login"
+      className="hidden sm:inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
+    >
+      Sign In
+    </Link>
 
-                <Link
-                  href="/login"
-                  className="hidden sm:inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
-                >
-                  Sign In
-                </Link>
-
-                <Link
-                  href="/signup"
-                  className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
-                >
-                  Sign Up
-                </Link>
-
-                <button
-                  onClick={() => setIsOpen((prev) => !prev)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 lg:hidden"
-                  aria-label="Toggle menu"
-                >
-                  {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </button>
-              </div>
+    <Link
+      href="/signup"
+      className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
+    >
+      Sign Up
+    </Link>
+  </>
+)}
             </div>
           </div>
         </div>
