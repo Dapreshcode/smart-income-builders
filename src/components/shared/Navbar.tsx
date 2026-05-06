@@ -171,8 +171,8 @@ const pathname = usePathname()
               {userEmail ? (
   <Link
     href="/account"
-    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
-  >
+    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+  >?
     Account
   </Link>
 ) : (
