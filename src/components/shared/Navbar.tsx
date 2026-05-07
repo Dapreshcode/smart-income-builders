@@ -20,7 +20,7 @@ const navLinks = [
   { name: "Blog", href: "/blog" },
   { name: "Resources", href: "/resources" },
   { name: "Saved", href: "/saved" },
-   { name: "Account", href: "/account" },
+   
 ]
 
 export default function Navbar() {
