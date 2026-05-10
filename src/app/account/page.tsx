@@ -20,7 +20,7 @@ export default async function AccountPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0f19] text-white px-4 py-16 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#0b0f19] text-white px-4 py-16 sm:px-6 lg:px-8 mt-15">
       <div className="mx-auto max-w-6xl grid gap-8 lg:grid-cols-[280px_1fr]">
         <aside className="rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.3)]">
           <p className="text-[11px] uppercase tracking-[0.22em] text-orange-300">
