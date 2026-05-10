@@ -20,7 +20,6 @@ const navLinks = [
   { name: "Blog", href: "/blog" },
   { name: "Resources", href: "/resources" },
   { name: "Saved", href: "/saved" },
-   
 ]
 
 export default function Navbar() {
@@ -28,41 +27,41 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isDark, setIsDark] = useState(true)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-const pathname = usePathname()
+  const pathname = usePathname()
 
   useEffect(() => {
-  const onScroll = () => {
-    setIsScrolled(window.scrollY > 20)
-  }
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
 
-  const savedTheme = localStorage.getItem("theme")
-  if (savedTheme === "light") {
-    setIsDark(false)
-    document.documentElement.classList.remove("dark")
-  } else {
-    setIsDark(true)
-    document.documentElement.classList.add("dark")
-  }
+    const savedTheme = localStorage.getItem("theme")
+    if (savedTheme === "light") {
+      setIsDark(false)
+      document.documentElement.classList.remove("dark")
+    } else {
+      setIsDark(true)
+      document.documentElement.classList.add("dark")
+    }
 
-  const supabase = createClient()
+    const supabase = createClient()
 
-  supabase.auth.getUser().then(({ data }) => {
-    setUserEmail(data.user?.email ?? null)
-  })
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null)
+    })
 
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    setUserEmail(session?.user?.email ?? null)
-  })
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null)
+    })
 
-  window.addEventListener("scroll", onScroll)
+    window.addEventListener("scroll", onScroll)
 
-  return () => {
-    window.removeEventListener("scroll", onScroll)
-    subscription.unsubscribe()
-  }
-}, [])
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      subscription.unsubscribe()
+    }
+  }, [])
 
   const toggleTheme = () => {
     const nextDark = !isDark
@@ -168,30 +167,48 @@ const pathname = usePathname()
               </nav>
 
               {/* right */}
-              {userEmail ? (
-  <Link
-    href="/account"
-    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
-  >?
-    Account
-  </Link>
-) : (
-  <>
-    <Link
-      href="/login"
-      className="hidden sm:inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
-    >
-      Sign In
-    </Link>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
+                  aria-label="Toggle theme"
+                >
+                  {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </button>
 
-    <Link
-      href="/signup"
-      className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
-    >
-      Sign Up
-    </Link>
-  </>
-)}
+                <button
+                  onClick={() => setIsOpen(!isOpen)}
+                  className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
+                  aria-label="Menu"
+                >
+                  {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
+
+                {userEmail ? (
+                  <Link
+                    href="/account"
+                    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+                  >
+                    Account
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="hidden sm:inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
+                    >
+                      Sign In
+                    </Link>
+
+                    <Link
+                      href="/signup"
+                      className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -231,21 +248,33 @@ const pathname = usePathname()
                 })}
 
                 <div className="mt-3 grid grid-cols-2 gap-3 pt-3">
-                  <Link
-                    href="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="inline-flex justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
-                  >
-                    Sign In
-                  </Link>
+                  {userEmail ? (
+                    <Link
+                      href="/account"
+                      onClick={() => setIsOpen(false)}
+                      className="col-span-2 inline-flex justify-center rounded-xl border border-orange-400/20 bg-orange-500 px-4 py-3 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+                    >
+                      Account
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setIsOpen(false)}
+                        className="inline-flex justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+                      >
+                        Sign In
+                      </Link>
 
-                  <Link
-                    href="/signup"
-                    onClick={() => setIsOpen(false)}
-                    className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)]"
-                  >
-                    Sign Up
-                  </Link>
+                      <Link
+                        href="/signup"
+                        onClick={() => setIsOpen(false)}
+                        className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)]"
+                      >
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

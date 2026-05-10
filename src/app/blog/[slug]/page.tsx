@@ -1,7 +1,6 @@
 import { getPost, getAllPosts } from "@/lib/mdx";
 import BlogDetail from "@/components/blog/BlogDetail";
 import Script from "next/script";
-
 import { getRelatedPosts } from "@/lib/related/getRelatedPosts";
 import { injectAffiliatePosts } from "@/lib/related/injectAffiliatePosts";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
@@ -10,6 +9,7 @@ import { getBookmarkState } from "@/app/actions/bookmarks";
 import BookmarkButton from "@/components/blog/BookmarkButton";
 import { getPathSequence } from "@/lib/paths/getPathSequence";
 import ArticlePathNavigator from "@/components/blog/ArticlepathNavigator";
+import TrackArticleView from "@/components/blog/TrackArticleView"
 
 // ✅ SEO metadata
 export async function generateMetadata({ params }: any) {
@@ -86,6 +86,12 @@ export default async function BlogPostPage({ params }: any) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-10 items-start">
           <div className="xl:col-span-9 min-w-0">
+              {/* ✅ TRACK ARTICLE VIEW */}
+            <TrackArticleView
+              slug={slug}
+              title={post.frontmatter.title}
+              category={post.frontmatter.category}
+            />
             <BlogDetail
               post={post}
               bookmarkButton={
