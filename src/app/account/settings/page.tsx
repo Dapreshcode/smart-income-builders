@@ -23,7 +23,7 @@ export default async function AccountSettingsPage() {
     .single()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-28">
       
       {/* Header */}
       <div>

@@ -59,7 +59,7 @@ export default async function SavedPage() {
 
               return (
                 <Link key={post.slug} href={`/blog/${post.slug}`}>
-                  <div className="group rounded-[28px] border border-white/10 bg-white/[0.04] p-5 hover:-translate-y-1 transition shadow-[0_18px_40px_rgba(0,0,0,0.3)]">
+                  <div className="group rounded-[28px] border border-white/10 bg-white/[0.04] p-5 hover:-translate-y-1 transition shadow-[0_18px_40px_rgba(0,0,0,0.3)] min-h-[200px]">
                     <p className="text-xs uppercase text-orange-300 mb-2">
                       {fm.category}
                     </p>

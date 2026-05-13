@@ -12,8 +12,15 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   BookOpen,
+  LayoutDashboard,
+  User,
+  Bookmark,
+  History,
+  Shield,
 } from "lucide-react"
+import LogoutButton from "@/components/account/LogoutButton"
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -22,11 +29,41 @@ const navLinks = [
   { name: "Saved", href: "/saved" },
 ]
 
+const accountLinks = [
+  {
+    href: "/userdashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    href: "/account/settings",
+    label: "Profile Settings",
+    icon: User,
+  },
+  {
+    href: "/saved",
+    label: "Saved Articles",
+    icon: Bookmark,
+  },
+  {
+    href: "/account/history",
+    label: "Reading History",
+    icon: History,
+  },
+  {
+    href: "/account/security",
+    label: "Security",
+    icon: Shield,
+  },
+  
+]
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isDark, setIsDark] = useState(true)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -176,37 +213,103 @@ export default function Navbar() {
                   {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
 
+                {/* Mobile Menu Button */}
                 <button
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={() => {
+                    setIsOpen(!isOpen)
+                    setIsAccountDropdownOpen(false)
+                  }}
                   className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
                   aria-label="Menu"
                 >
                   {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
 
-                {userEmail ? (
+                {/* Desktop Account Button */}
+                {userEmail && (
+                  <div className="relative hidden lg:block">
+                   {/* Desktop Account Button */}
+                {userEmail && (
                   <Link
                     href="/account"
-                    className="hidden sm:inline-flex rounded-full border border-orange-400/20 bg-orange-500 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+                    className="hidden lg:inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
                   >
-                    Account
+                    <User className="h-4 w-4" />
+                    <span>Account</span>
                   </Link>
-                ) : (
-                  <>
+                )}
+
+                    {/* Desktop Account Dropdown */}
+                    {isAccountDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsAccountDropdownOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 z-50 w-[280px] origin-top-right rounded-2xl border border-white/10 bg-[#0b1020]/95 backdrop-blur-xl shadow-2xl">
+                          <div className="p-4">
+                            <div className="mb-4">
+                              <p className="text-xs uppercase tracking-[0.2em] text-orange-300">
+                                Account Area
+                              </p>
+                              <h2 className="mt-1 text-lg font-semibold text-white">
+                                Manage Account
+                              </h2>
+                              <p className="mt-1 text-xs text-white/50 truncate">
+                                {userEmail}
+                              </p>
+                            </div>
+
+                            <nav className="space-y-1">
+                              {accountLinks.map((link) => {
+                                const Icon = link.icon
+                                const active = pathname === link.href
+
+                                return (
+                                  <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsAccountDropdownOpen(false)}
+                                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                                      active
+                                        ? "bg-orange-500/15 text-orange-300"
+                                        : "text-gray-300 hover:bg-white/5 hover:text-white"
+                                    }`}
+                                  >
+                                    <Icon className="h-4 w-4" />
+                                    {link.label}
+                                  </Link>
+                                )
+                              })}
+                            </nav>
+
+                            <div className="mt-4 border-t border-white/10 pt-4">
+                              <LogoutButton />
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Desktop Auth Buttons when not logged in */}
+                {!userEmail && (
+                  <div className="hidden lg:flex items-center gap-2">
                     <Link
                       href="/login"
-                      className="hidden sm:inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
+                      className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
                     >
                       Sign In
                     </Link>
 
                     <Link
                       href="/signup"
-                      className="hidden sm:inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
+                      className="inline-flex rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)] transition hover:brightness-110"
                     >
                       Sign Up
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -214,7 +317,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* mobile menu */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -227,55 +330,133 @@ export default function Navbar() {
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b1020]/92 backdrop-blur-2xl shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),transparent_24%)]" />
 
-              <div className="relative space-y-2 p-4">
-                {navLinks.map((link) => {
-                  const active = pathname === link.href
+              <div className="relative max-h-[calc(100vh-120px)] overflow-y-auto p-4">
+                {/* Main Navigation Links */}
+                <div className="space-y-2">
+                  {navLinks.map((link) => {
+                    const active = pathname === link.href
 
-                  return (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                        active
-                          ? "bg-white/10 text-orange-300"
-                          : "text-white/75 hover:bg-white/8 hover:text-white"
-                      }`}
-                    >
-                      {link.name}
-                    </Link>
-                  )
-                })}
-
-                <div className="mt-3 grid grid-cols-2 gap-3 pt-3">
-                  {userEmail ? (
-                    <Link
-                      href="/account"
-                      onClick={() => setIsOpen(false)}
-                      className="col-span-2 inline-flex justify-center rounded-xl border border-orange-400/20 bg-orange-500 px-4 py-3 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
-                    >
-                      Account
-                    </Link>
-                  ) : (
-                    <>
+                    return (
                       <Link
-                        href="/login"
+                        key={link.name}
+                        href={link.href}
                         onClick={() => setIsOpen(false)}
-                        className="inline-flex justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+                        className={`block rounded-xl px-4 py-3 text-sm font-medium transition ${
+                          active
+                            ? "bg-white/10 text-orange-300"
+                            : "text-white/75 hover:bg-white/8 hover:text-white"
+                        }`}
                       >
-                        Sign In
+                        {link.name}
                       </Link>
-
-                      <Link
-                        href="/signup"
-                        onClick={() => setIsOpen(false)}
-                        className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)]"
-                      >
-                        Sign Up
-                      </Link>
-                    </>
-                  )}
+                    )
+                  })}
                 </div>
+
+                 {/*  Account Button */}
+                {userEmail && (
+                  <Link
+                    href="/account"
+                    className="hidden lg:inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>Account</span>
+                  </Link>
+                )}
+
+                {/* Account Section for Mobile (when logged in) */}
+                {userEmail && (
+  <div className="mt-4">
+    <button
+      onClick={() =>
+        setIsAccountDropdownOpen(!isAccountDropdownOpen)
+      }
+      className="flex w-full items-center justify-between rounded-xl bg-white/5 px-4 py-3 transition hover:bg-white/10"
+    >
+      <div className="text-left">
+        <p className="text-xs uppercase tracking-[0.2em] text-orange-300">
+          Account Area
+        </p>
+
+        <p className="mt-1 text-sm text-white/60 truncate">
+          {userEmail}
+        </p>
+      </div>
+
+      <motion.div
+        animate={{
+          rotate: isAccountDropdownOpen ? 180 : 0,
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <ChevronDown className="h-4 w-4 text-white/60" />
+      </motion.div>
+    </button>
+
+    <AnimatePresence>
+      {isAccountDropdownOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25 }}
+          className="overflow-hidden"
+        >
+          <div className="mt-2 space-y-1">
+            {accountLinks.map((link) => {
+              const Icon = link.icon
+              const active = pathname === link.href
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => {
+                    setIsOpen(false)
+                    setIsAccountDropdownOpen(false)
+                  }}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    active
+                      ? "bg-orange-500/15 text-orange-300"
+                      : "text-white/75 hover:bg-white/8 hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {link.label}
+                </Link>
+              )
+            })}
+
+            <div className="pt-2">
+              <LogoutButton />
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+)}
+
+                {/* Auth Buttons for Mobile (when not logged in) */}
+                {!userEmail && (
+                  <div className="mt-4 grid grid-cols-2 gap-3 pt-3">
+                    <Link
+                      href="/login"
+                      onClick={() => setIsOpen(false)}
+                      className="inline-flex justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10"
+                    >
+                      Sign In
+                    </Link>
+
+                    <Link
+                      href="/signup"
+                      onClick={() => setIsOpen(false)}
+                      className="inline-flex justify-center rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.24)]"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

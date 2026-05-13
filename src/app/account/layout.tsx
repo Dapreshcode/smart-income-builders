@@ -23,7 +23,8 @@ export default async function AccountLayout({
       <div className="mx-auto flex max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:px-8">
         
         {/* Sidebar */}
-        <AccountSidebar />
+        <AccountSidebar>{null}</AccountSidebar>
+        
 
         {/* Content */}
         <div className="flex-1">
