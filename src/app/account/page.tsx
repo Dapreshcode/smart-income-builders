@@ -42,6 +42,20 @@ export default async function AccountPage() {
         action={completeOnboarding}
         className="space-y-6"
       >
+    {/**Avatar upload */}
+        <div>
+  <label className="mb-2 block text-sm text-white">
+    Profile Photo
+  </label>
+
+  <input
+    type="file"
+    name="avatar"
+    accept="image/*"
+    className="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300"
+  />
+</div>
+
         {/* FULL NAME */}
         <div>
           <label className="mb-2 block text-sm text-white">

@@ -20,8 +20,7 @@ export default async function AccountSettingsPage() {
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single()
-
+    .maybeSingle()
   return (
     <div className="space-y-6 mt-28">
       
@@ -41,10 +40,10 @@ export default async function AccountSettingsPage() {
       </div>
 
       {/* Profile Form */}
-      <ProfileForm
-        initialName={profile?.full_name || ""}
-        email={user.email || ""}
-      />
+     <ProfileForm
+  profile={profile}
+  email={user.email || ""}
+/>
 
       {/* Security */}
       <SecurityCard />

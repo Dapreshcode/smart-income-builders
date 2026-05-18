@@ -3,17 +3,47 @@
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Save, User } from "lucide-react"
+import { updateProfile } from "@/app/actions/profile"
 
 interface ProfileFormProps {
-  initialName: string
   email: string
+
+  profile: {
+    full_name: string | null
+    username: string | null
+    bio: string | null
+    website: string | null
+    location: string | null
+    avatar_url: string | null
+  } | null
 }
 
 export default function ProfileForm({
-  initialName,
+  profile,
   email,
 }: ProfileFormProps) {
-  const [fullName, setFullName] = useState(initialName)
+ const [fullName, setFullName] = useState(
+  profile?.full_name || ""
+)
+
+const [username, setUsername] = useState(
+  profile?.username || ""
+)
+
+const [bio, setBio] = useState(
+  profile?.bio || ""
+)
+
+const [website, setWebsite] = useState(
+  profile?.website || ""
+)
+
+const [location, setLocation] = useState(
+  profile?.location || ""
+)
+
+const [avatarFile, setAvatarFile] =
+  useState<File | null>(null)
 
   const [loading, setLoading] = useState(false)
 
@@ -22,60 +52,14 @@ export default function ProfileForm({
     text: string
   } | null>(null)
 
-  const supabase = createClient()
+  
 
-  const handleUpdateProfile = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault()
-
-    setLoading(true)
-    setMessage(null)
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      setMessage({
-        type: "error",
-        text: "Not authenticated",
-      })
-
-      setLoading(false)
-      return
-    }
-
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({
-        id: user.id,
-        full_name: fullName.trim(),
-        updated_at: new Date().toISOString(),
-      })
-
-    if (error) {
-      setMessage({
-        type: "error",
-        text: error.message,
-      })
-    } else {
-      setMessage({
-        type: "success",
-        text: "Profile updated successfully!",
-      })
-
-      setTimeout(() => {
-        setMessage(null)
-      }, 3500)
-    }
-
-    setLoading(false)
-  }
+  
 
   return (
     <form
-      onSubmit={handleUpdateProfile}
+     action={updateProfile}
+  encType="multipart/form-data"
       className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
     >
       <div className="mb-6 flex items-center gap-3">
@@ -107,6 +91,39 @@ export default function ProfileForm({
       )}
 
       <div className="space-y-5">
+{/* AVATAR */}
+
+        <div>
+  <label className="mb-2 block text-sm font-medium text-gray-300">
+    Profile Photo
+  </label>
+
+  <div className="mb-4 flex items-center gap-4">
+    {profile?.avatar_url ? (
+      <img
+        src={profile.avatar_url}
+        alt="Avatar"
+        className="h-20 w-20 rounded-full object-cover"
+      />
+    ) : (
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-orange-500 text-2xl font-bold text-white">
+        {fullName?.charAt(0).toUpperCase()}
+      </div>
+    )}
+
+    <input
+      type="file"
+      name="avatar"
+      accept="image/*"
+      onChange={(e) =>
+        setAvatarFile(
+          e.target.files?.[0] || null
+        )
+      }
+      className="text-sm text-gray-400"
+    />
+  </div>
+</div>
         
         {/* NAME */}
         <div>
@@ -125,6 +142,86 @@ export default function ProfileForm({
             maxLength={60}
           />
         </div>
+
+{/* USERNAME */}
+        <div>
+  <label className="mb-2 block text-sm font-medium text-gray-300">
+    Username
+  </label>
+
+  <input
+    type="text"
+    name="username"
+    value={username}
+    onChange={(e) =>
+      setUsername(
+        e.target.value.toLowerCase()
+      )
+    }
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    placeholder="barrycodes"
+  />
+
+  <p className="mt-2 text-xs text-gray-500">
+    Lowercase letters, numbers, underscores only.
+  </p>
+</div>
+
+{/* BIO */}
+<div>
+  <label className="mb-2 block text-sm font-medium text-gray-300">
+    Bio
+  </label>
+
+  <textarea
+    name="bio"
+    rows={4}
+    value={bio}
+    onChange={(e) =>
+      setBio(e.target.value)
+    }
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    placeholder="Tell people about yourself"
+  />
+</div>
+
+
+{/* WEBSITE */}
+<div>
+  <label className="mb-2 block text-sm font-medium text-gray-300">
+    Website
+  </label>
+
+  <input
+    type="url"
+    name="website"
+    value={website}
+    onChange={(e) =>
+      setWebsite(e.target.value)
+    }
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    placeholder="https://yourwebsite.com"
+  />
+</div>
+
+{/* LOCATION */}
+
+<div>
+  <label className="mb-2 block text-sm font-medium text-gray-300">
+    Location
+  </label>
+
+  <input
+    type="text"
+    name="location"
+    value={location}
+    onChange={(e) =>
+      setLocation(e.target.value)
+    }
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    placeholder="Lagos, Nigeria"
+  />
+</div>
 
         {/* EMAIL */}
         <div>
