@@ -32,9 +32,9 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  // PROFILE
+  // PROFILE - Fixed to use profiles table instead of subscribers
   const { data: profile } = await supabase
-    .from("subscribers")
+    .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single()
@@ -42,13 +42,13 @@ export default async function DashboardPage() {
   // ANALYTICS
   const analytics = await getUserAnalytics(user.id)
 
-  // RECENT HISTORY
+  // RECENT HISTORY - Fixed the nested query structure
   const { data: recentHistory } = await supabase
     .from("reading_history")
     .select(`
       id,
       viewed_at,
-      post (
+      post:posts (
         slug,
         title,
         category
@@ -58,13 +58,13 @@ export default async function DashboardPage() {
     .order("viewed_at", { ascending: false })
     .limit(5)
 
-  // SAVED ARTICLES PREVIEW
+  // SAVED ARTICLES PREVIEW - Fixed the nested query structure
   const { data: savedArticles } = await supabase
     .from("saved_articles")
     .select(`
       id,
       created_at,
-      post (
+      post:posts (
         slug,
         title,
         category
@@ -74,33 +74,28 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(5)
 
-  // NORMALIZED HISTORY
-  const formattedHistory: ReadingHistoryItem[] =
-    (recentHistory || []).map((item: any) => ({
-      id: item.id,
-      viewed_at: item.viewed_at,
-      post: item.posts?.[0] || null,
-    }))
+  // NORMALIZED HISTORY - Fixed to handle correct data structure
+  const formattedHistory: ReadingHistoryItem[] = (recentHistory || []).map((item: any) => ({
+    id: item.id,
+    viewed_at: item.viewed_at,
+    post: item.post, // This is now directly the post object, not an array
+  }))
 
-  // NORMALIZED SAVED ARTICLES
-  const formattedSaved: SavedArticleItem[] =
-    (savedArticles || []).map((item: any) => ({
-      id: item.id,
-      created_at: item.created_at,
-      post: item.posts?.[0] || null,
-    }))
+  // NORMALIZED SAVED ARTICLES - Fixed to handle correct data structure
+  const formattedSaved: SavedArticleItem[] = (savedArticles || []).map((item: any) => ({
+    id: item.id,
+    created_at: item.created_at,
+    post: item.post, // This is now directly the post object, not an array
+  }))
 
-  // REAL BOOKMARK COUNT
+  // REAL BOOKMARK COUNT - This is correct
   const { count: savedCount } = await supabase
     .from("saved_articles")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id)
 
   // CONTINUE READING
-  const continueReading =
-    formattedHistory.length > 0
-      ? formattedHistory[0]
-      : null
+  const continueReading = formattedHistory.length > 0 ? formattedHistory[0] : null
 
   // DASHBOARD STATS
   const stats = [
@@ -124,9 +119,7 @@ export default async function DashboardPage() {
     },
     {
       title: "Reading Streak",
-      value: `${analytics.readingStreak} ${
-        analytics.readingStreak === 1 ? "day" : "days"
-      }`,
+      value: `${analytics.readingStreak} ${analytics.readingStreak === 1 ? "day" : "days"}`,
       icon: "TrendingUp",
       color: "text-green-400",
       bgColor: "bg-green-400/10",
@@ -152,11 +145,7 @@ export default async function DashboardPage() {
 
   return (
     <DashboardClient
-      username={
-        profile?.full_name ||
-        user.email?.split("@")[0] ||
-        "Reader"
-      }
+      username={profile?.username || user.email?.split("@")[0] || "Reader"}
       fullName={profile?.full_name || null}
       stats={stats}
       insights={insights}

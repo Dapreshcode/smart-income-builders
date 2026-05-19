@@ -31,7 +31,7 @@ export default function UserMenu({
             />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white ring-2 ring-white/10 transition hover:ring-orange-400">
-              {fullName?.charAt(0).toUpperCase()}
+             {fullName?.charAt(0).toUpperCase() || "U"}
             </div>
           )}
         </button>

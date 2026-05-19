@@ -97,18 +97,25 @@ export async function completeOnboarding(
     throw new Error("Username already taken")
   }
 
-  const { error } = await supabase
-    .from("profiles")
-   .update({
-  avatar_url,
-      full_name,
-      username,
-      bio,
-      website,
-      location,
-      onboarding_completed: true,
-    })
-    .eq("id", user.id)
+  // onboarding logic
+const onboarding_completed =
+  !!full_name &&
+  !!username
+
+// UPDATE PROFILE
+const { error } = await supabase
+  .from("profiles")
+  .update({
+    full_name,
+    username,
+    bio,
+    website,
+    location,
+    avatar_url,
+    onboarding_completed,
+    updated_at: new Date().toISOString(),
+  })
+  .eq("id", user.id)
 
   if (error) {
     throw error

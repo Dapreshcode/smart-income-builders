@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import UserMenu from "@/components/navigation/UserMenu"
 import {
   Sun,
   Moon,
@@ -46,7 +47,7 @@ const accountLinks = [
     icon: Bookmark,
   },
   {
-    href: "history",
+    href: "/history",
     label: "Reading History",
     icon: History,
   },
@@ -55,15 +56,24 @@ const accountLinks = [
     label: "Security",
     icon: Shield,
   },
-  
 ]
+
+interface Profile {
+  full_name: string | null
+  username: string | null
+  avatar_url: string | null
+  onboarding_completed: boolean
+}
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isDark, setIsDark] = useState(true)
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
   const pathname = usePathname()
 
   useEffect(() => {
@@ -72,6 +82,7 @@ export default function Navbar() {
     }
 
     const savedTheme = localStorage.getItem("theme")
+
     if (savedTheme === "light") {
       setIsDark(false)
       document.documentElement.classList.remove("dark")
@@ -82,15 +93,74 @@ export default function Navbar() {
 
     const supabase = createClient()
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? null)
-    })
+    const fetchUserAndProfile = async () => {
+      try {
+        console.log("Starting fetchUserAndProfile...")
+        
+        const {
+          data: { user: userData },
+          error: userError,
+        } = await supabase.auth.getUser()
+
+        if (userError) {
+          console.error("Error fetching user:", userError)
+          setUser(null)
+          setProfile(null)
+          setIsLoading(false)
+          return
+        }
+
+        console.log("Fetched user:", userData)
+
+        if (!userData) {
+          console.log("No user found, showing sign in buttons")
+          setUser(null)
+          setProfile(null)
+          setIsLoading(false)
+          return
+        }
+
+        setUser(userData)
+
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select(`
+            full_name,
+            username,
+            avatar_url,
+            onboarding_completed
+          `)
+          .eq("id", userData.id)
+          .maybeSingle()
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError)
+        }
+
+        console.log("Fetched profile:", profileData)
+        setProfile(profileData)
+        setIsLoading(false)
+      } catch (error) {
+        console.error("Error in fetchUserAndProfile:", error)
+        setUser(null)
+        setProfile(null)
+        setIsLoading(false)
+      }
+    }
+
+    void fetchUserAndProfile()
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? null)
-    })
+    } = supabase.auth.onAuthStateChange(
+      async (event) => {
+        console.log("Auth state changed:", event)
+        if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+          setIsLoading(true)
+          void fetchUserAndProfile()
+        }
+      }
+    )
 
     window.addEventListener("scroll", onScroll)
 
@@ -116,13 +186,31 @@ export default function Navbar() {
   const goBack = () => window.history.back()
   const goForward = () => window.history.forward()
 
+  // Check if user is logged in (has user object)
+  const isLoggedIn = !!user
+  const isOnDashboard = pathname === "/dashboard"
+
+  console.log("Render state - isLoading:", isLoading, "isLoggedIn:", isLoggedIn, "isOnDashboard:", isOnDashboard)
+
+  // Handle avatar click based on current page
+  const handleAvatarClick = () => {
+    if (!profile?.onboarding_completed) {
+      // If onboarding not completed, go to account page
+      window.location.href = "/account"
+    } else if (!isOnDashboard) {
+      // If onboarding completed but NOT on dashboard, go to dashboard
+      window.location.href = "/dashboard"
+    }
+    // If on dashboard, do nothing here - let UserMenu handle the dropdown
+  }
+
   return (
     <>
       <motion.header
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.55 }}
-        className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 lg:px-8 pt-4"
+        className="fixed left-0 right-0 top-0 z-50 px-4 pt-4 md:px-6 lg:px-8"
       >
         <div
           className={`mx-auto max-w-7xl transition-all duration-300 ${
@@ -132,14 +220,14 @@ export default function Navbar() {
           <div
             className={`relative overflow-hidden rounded-2xl border border-white/10 transition-all duration-300 ${
               isScrolled
-                ? "bg-[#0b1020]/78 backdrop-blur-2xl shadow-[0_18px_50px_rgba(0,0,0,0.38)]"
-                : "bg-[#0b1020]/62 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.24)]"
+                ? "bg-[#0b1020]/78 shadow-[0_18px_50px_rgba(0,0,0,0.38)] backdrop-blur-2xl"
+                : "bg-[#0b1020]/62 shadow-[0_12px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl"
             }`}
           >
-            {/* premium reflection */}
+            {/* Reflection */}
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),transparent_24%)]" />
 
-            {/* orange glow */}
+            {/* Glow */}
             <div className="pointer-events-none absolute -top-10 right-20 h-24 w-24 rounded-full bg-orange-500/10 blur-3xl" />
 
             <div
@@ -147,11 +235,11 @@ export default function Navbar() {
                 isScrolled ? "h-16 px-4 md:px-5" : "h-[72px] px-4 md:px-6"
               }`}
             >
-              {/* left */}
+              {/* LEFT */}
               <div className="flex items-center gap-2 md:gap-3">
                 <button
                   onClick={goBack}
-                  className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
+                  className="hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300 sm:flex"
                   aria-label="Go back"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -159,22 +247,26 @@ export default function Navbar() {
 
                 <button
                   onClick={goForward}
-                  className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
+                  className="hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300 sm:flex"
                   aria-label="Go forward"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
 
-                <Link href="/" className="flex items-center gap-3">
+                <Link
+                  href="/"
+                  className="flex min-w-0 items-center gap-3"
+                >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-400/20 bg-gradient-to-br from-orange-500/20 to-orange-600/10 text-orange-300 shadow-[0_8px_24px_rgba(249,115,22,0.18)]">
                     <BookOpen className="h-5 w-5" />
                   </div>
 
-                  <div className="leading-tight">
-                    <p className="text-sm font-semibold text-white md:text-base">
+                  <div className="min-w-0 leading-tight">
+                    <p className="truncate text-sm font-semibold text-white md:text-base">
                       Smart Income
                       <span className="text-orange-400"> Builders</span>
                     </p>
+
                     <p className="hidden text-[11px] uppercase tracking-[0.18em] text-white/38 md:block">
                       Premium Digital Growth Blog
                     </p>
@@ -182,11 +274,10 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              {/* center nav */}
-              <nav className="hidden lg:flex items-center gap-2">
+              {/* CENTER NAV */}
+              <nav className="hidden items-center gap-2 lg:flex">
                 {navLinks.map((link) => {
                   const active = pathname === link.href
-
                   return (
                     <Link
                       key={link.name}
@@ -203,8 +294,9 @@ export default function Navbar() {
                 })}
               </nav>
 
-              {/* right */}
+              {/* RIGHT */}
               <div className="flex items-center gap-2">
+                {/* THEME */}
                 <button
                   onClick={toggleTheme}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
@@ -213,89 +305,69 @@ export default function Navbar() {
                   {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
 
-                {/* Mobile Menu Button */}
+                {/* MOBILE MENU BUTTON */}
                 <button
                   onClick={() => {
                     setIsOpen(!isOpen)
-                    setIsAccountDropdownOpen(false)
+                    setMobileDropdownOpen(false)
                   }}
-                  className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/75 transition hover:bg-white/10 hover:text-orange-300 lg:hidden"
                   aria-label="Menu"
                 >
                   {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </button>
 
-                {/* Desktop Account Button */}
-                {userEmail && (
-                  <div className="relative hidden lg:block">
-                   {/* Desktop Account Button */}
-                {userEmail && (
-                  <Link
-                    href="/account"
-                    className="hidden lg:inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>Account</span>
-                  </Link>
-                )}
-
-                    {/*  Account Dropdown */}
-                    {isAccountDropdownOpen && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setIsAccountDropdownOpen(false)}
-                        />
-                        <div className="absolute right-0 top-full mt-2 z-50 w-[280px] origin-top-right rounded-2xl border border-white/10 bg-[#0b1020]/95 backdrop-blur-xl shadow-2xl">
-                          <div className="p-4">
-                            <div className="mb-4">
-                              <p className="text-xs uppercase tracking-[0.2em] text-orange-300">
-                                Account Area
-                              </p>
-                              <h2 className="mt-1 text-lg font-semibold text-white">
-                                Manage Account
-                              </h2>
-                              <p className="mt-1 text-xs text-white/50 truncate">
-                                {userEmail}
-                              </p>
-                            </div>
-
-                            <nav className="space-y-1">
-                              {accountLinks.map((link) => {
-                                const Icon = link.icon
-                                const active = pathname === link.href
-
-                                return (
-                                  <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    onClick={() => setIsAccountDropdownOpen(false)}
-                                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                                      active
-                                        ? "bg-orange-500/15 text-orange-300"
-                                        : "text-gray-300 hover:bg-white/5 hover:text-white"
-                                    }`}
-                                  >
-                                    <Icon className="h-4 w-4" />
-                                    {link.label}
-                                  </Link>
-                                )
-                              })}
-                            </nav>
-
-                            <div className="mt-4 border-t border-white/10 pt-4">
-                              <LogoutButton />
-                            </div>
+                {/* DESKTOP AVATAR - Show when user is logged in */}
+                {!isLoading && isLoggedIn && (
+                  <div className="hidden lg:block">
+                    {!profile?.onboarding_completed ? (
+                      // Onboarding not completed - clicking goes to account page
+                      <button onClick={handleAvatarClick}>
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt={profile?.username || "User"}
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-white/10 transition hover:ring-orange-400"
+                          />
+                        ) : (
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-sm font-bold text-white ring-2 ring-white/10 transition hover:ring-orange-400">
+                            {profile?.full_name?.charAt(0)?.toUpperCase() || 
+                             profile?.username?.charAt(0)?.toUpperCase() || 
+                             user?.email?.charAt(0)?.toUpperCase() || "U"}
                           </div>
-                        </div>
-                      </>
+                        )}
+                      </button>
+                    ) : !isOnDashboard ? (
+                      // Onboarding completed but NOT on dashboard - clicking goes to dashboard
+                      <button onClick={handleAvatarClick}>
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt={profile?.username || "User"}
+                            className="h-11 w-11 rounded-full object-cover ring-2 ring-white/10 transition hover:ring-orange-400"
+                          />
+                        ) : (
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-sm font-bold text-white ring-2 ring-white/10 transition hover:ring-orange-400">
+                            {profile?.full_name?.charAt(0)?.toUpperCase() || 
+                             profile?.username?.charAt(0)?.toUpperCase() || 
+                             user?.email?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                        )}
+                      </button>
+                    ) : (
+                      // On dashboard - show dropdown menu
+                      <UserMenu
+                        fullName={profile?.full_name || null}
+                        username={profile?.username || null}
+                        avatarUrl={profile?.avatar_url || null}
+                      />
                     )}
                   </div>
                 )}
 
-                {/* Desktop Auth Buttons when not logged in */}
-                {!userEmail && (
-                  <div className="hidden lg:flex items-center gap-2">
+                {/* DESKTOP AUTH BUTTONS - Show when NOT logged in (including while loading) */}
+                {(!isLoggedIn || isLoading) && (
+                  <div className="hidden items-center gap-2 lg:flex">
                     <Link
                       href="/login"
                       className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/78 transition hover:bg-white/10 hover:text-white"
@@ -317,7 +389,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -327,15 +399,14 @@ export default function Navbar() {
             transition={{ duration: 0.25 }}
             className="fixed inset-x-4 top-[92px] z-40 lg:hidden"
           >
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b1020]/92 backdrop-blur-2xl shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0b1020]/92 shadow-[0_18px_50px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
               <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),transparent_24%)]" />
 
               <div className="relative max-h-[calc(100vh-120px)] overflow-y-auto p-4">
-                {/* Main Navigation Links */}
+                {/* NAV LINKS */}
                 <div className="space-y-2">
                   {navLinks.map((link) => {
                     const active = pathname === link.href
-
                     return (
                       <Link
                         key={link.name}
@@ -353,92 +424,114 @@ export default function Navbar() {
                   })}
                 </div>
 
-                 {/*  Account Button */}
-                {userEmail && (
-                  <Link
-                    href="/account"
-                    className="hidden lg:inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-300 transition hover:bg-orange-500/15"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>Account</span>
-                  </Link>
+                {/* MOBILE ACCOUNT - Show when user is logged in */}
+                {!isLoading && isLoggedIn && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+                      className="flex w-full items-center justify-between rounded-xl bg-white/5 px-4 py-3 transition hover:bg-white/10"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        {profile?.avatar_url ? (
+                          <img
+                            src={profile.avatar_url}
+                            alt="Avatar"
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 font-bold text-white">
+                            {profile?.full_name?.charAt(0)?.toUpperCase() || 
+                             profile?.username?.charAt(0)?.toUpperCase() || 
+                             user?.email?.charAt(0)?.toUpperCase() || "U"}
+                          </div>
+                        )}
+
+                        <div className="min-w-0 text-left">
+                          <p className="text-xs uppercase tracking-[0.2em] text-orange-300">
+                            Account Area
+                          </p>
+
+                          <p className="truncate text-sm text-white">
+                            @{profile?.username || user?.email?.split('@')[0] || "username"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <motion.div
+                        animate={{ rotate: mobileDropdownOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="h-4 w-4 text-white/60" />
+                      </motion.div>
+                    </button>
+
+                    <AnimatePresence>
+                      {mobileDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-2 space-y-1">
+                            {!profile?.onboarding_completed && (
+                              <Link
+                                href="/account"
+                                onClick={() => {
+                                  setIsOpen(false)
+                                  setMobileDropdownOpen(false)
+                                }}
+                                className="mb-3 block rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4"
+                              >
+                                <p className="text-sm font-semibold text-orange-300">
+                                  Complete onboarding
+                                </p>
+
+                                <p className="mt-1 text-xs text-orange-200/70">
+                                  Finish setting up your account before accessing dashboard
+                                  features.
+                                </p>
+                              </Link>
+                            )}
+
+                            {profile?.onboarding_completed &&
+                              accountLinks.map((link) => {
+                                const Icon = link.icon
+                                const active = pathname === link.href
+
+                                return (
+                                  <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => {
+                                      setIsOpen(false)
+                                      setMobileDropdownOpen(false)
+                                    }}
+                                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                                      active
+                                        ? "bg-orange-500/15 text-orange-300"
+                                        : "text-white/75 hover:bg-white/8 hover:text-white"
+                                    }`}
+                                  >
+                                    <Icon className="h-4 w-4" />
+                                    {link.label}
+                                  </Link>
+                                )
+                              })}
+
+                            <div className="pt-2">
+                              <LogoutButton />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 )}
 
-                {/* Account Section for Mobile (when logged in) */}
-                {userEmail && (
-  <div className="mt-4">
-    <button
-      onClick={() =>
-        setIsAccountDropdownOpen(!isAccountDropdownOpen)
-      }
-      className="flex w-full items-center justify-between rounded-xl bg-white/5 px-4 py-3 transition hover:bg-white/10"
-    >
-      <div className="text-left">
-        <p className="text-xs uppercase tracking-[0.2em] text-orange-300">
-          Account Area
-        </p>
-
-        <p className="mt-1 text-sm text-white/60 truncate">
-          {userEmail}
-        </p>
-      </div>
-
-      <motion.div
-        animate={{
-          rotate: isAccountDropdownOpen ? 180 : 0,
-        }}
-        transition={{ duration: 0.2 }}
-      >
-        <ChevronDown className="h-4 w-4 text-white/60" />
-      </motion.div>
-    </button>
-
-    <AnimatePresence>
-      {isAccountDropdownOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.25 }}
-          className="overflow-hidden"
-        >
-          <div className="mt-2 space-y-1">
-            {accountLinks.map((link) => {
-              const Icon = link.icon
-              const active = pathname === link.href
-
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => {
-                    setIsOpen(false)
-                    setIsAccountDropdownOpen(false)
-                  }}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    active
-                      ? "bg-orange-500/15 text-orange-300"
-                      : "text-white/75 hover:bg-white/8 hover:text-white"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {link.label}
-                </Link>
-              )
-            })}
-
-            <div className="pt-2">
-              <LogoutButton />
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-)}
-
-                {/* Auth Buttons for Mobile (when not logged in) */}
-                {!userEmail && (
+                {/* MOBILE AUTH - Show when NOT logged in or still loading */}
+                {(!isLoggedIn || isLoading) && (
                   <div className="mt-4 grid grid-cols-2 gap-3 pt-3">
                     <Link
                       href="/login"
