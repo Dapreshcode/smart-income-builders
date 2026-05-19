@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
+/** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
-  /* config options here */
+  allowedDevOrigins: ['192.168.249.75', 'localhost:3000'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
 };
 
-module.exports = {
-  allowedDevOrigins: ['192.168.249.75'],
-}
-export default nextConfig;
+export default nextConfig

@@ -48,7 +48,8 @@ interface SavedArticleItem {
 }
 
 interface DashboardClientProps {
-  userName: string
+  username: string
+  fullName: string | null
   stats: Array<{
     title: string
     value: string | number
@@ -69,7 +70,8 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({
-  userName,
+  username,
+  fullName,
   stats,
   insights,
   continueReading,
@@ -92,7 +94,7 @@ export default function DashboardClient({
           </p>
 
           <h1 className="text-4xl font-bold text-white">
-            Welcome back, {userName}
+            Welcome back, @{username} 
           </h1>
 
           <p className="mt-4 max-w-2xl text-gray-300 leading-7">

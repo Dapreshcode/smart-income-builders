@@ -2,10 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 
-interface ReadingHistoryRow {
-  viewed_at: string
-  post_category: string | null
-}
+
 
 export async function getUserAnalytics(userId: string) {
   const supabase = await createClient()

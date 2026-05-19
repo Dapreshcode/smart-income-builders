@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Save, User } from "lucide-react"
 import { updateProfile } from "@/app/actions/profile"
+import SubmitButton from "./SubmitButton"
 
 interface ProfileFormProps {
   email: string
@@ -42,24 +42,10 @@ const [location, setLocation] = useState(
   profile?.location || ""
 )
 
-const [avatarFile, setAvatarFile] =
-  useState<File | null>(null)
-
-  const [loading, setLoading] = useState(false)
-
-  const [message, setMessage] = useState<{
-    type: "success" | "error"
-    text: string
-  } | null>(null)
-
-  
-
-  
 
   return (
     <form
-     action={updateProfile}
-  encType="multipart/form-data"
+      action={updateProfile}
       className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
     >
       <div className="mb-6 flex items-center gap-3">
@@ -78,17 +64,7 @@ const [avatarFile, setAvatarFile] =
         </div>
       </div>
 
-      {message && (
-        <div
-          className={`mb-5 rounded-2xl px-4 py-3 text-sm ${
-            message.type === "success"
-              ? "bg-green-500/10 text-green-300"
-              : "bg-red-500/10 text-red-300"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+ 
 
       <div className="space-y-5">
 {/* AVATAR */}
@@ -112,15 +88,10 @@ const [avatarFile, setAvatarFile] =
     )}
 
     <input
-      type="file"
-      name="avatar"
-      accept="image/*"
-      onChange={(e) =>
-        setAvatarFile(
-          e.target.files?.[0] || null
-        )
-      }
-      className="text-sm text-gray-400"
+  type="file"
+  name="avatar"
+  accept="image/*"
+  className="block w-full text-sm text-gray-400 min-w-0  rounded-2xl"
     />
   </div>
 </div>
@@ -131,16 +102,17 @@ const [avatarFile, setAvatarFile] =
             Full Name
           </label>
 
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) =>
-              setFullName(e.target.value)
-            }
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
-            placeholder="Enter your full name"
-            maxLength={60}
-          />
+         <input
+  type="text"
+  name="full_name"
+  value={fullName}
+  onChange={(e) =>
+    setFullName(e.target.value)
+  }
+  className="min-w-0 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+  placeholder="Enter your full name"
+  maxLength={60}
+/>
         </div>
 
 {/* USERNAME */}
@@ -158,7 +130,7 @@ const [avatarFile, setAvatarFile] =
         e.target.value.toLowerCase()
       )
     }
-    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400 min-w-0"
     placeholder="barrycodes"
   />
 
@@ -180,7 +152,7 @@ const [avatarFile, setAvatarFile] =
     onChange={(e) =>
       setBio(e.target.value)
     }
-    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400 min-w-0"
     placeholder="Tell people about yourself"
   />
 </div>
@@ -218,7 +190,7 @@ const [avatarFile, setAvatarFile] =
     onChange={(e) =>
       setLocation(e.target.value)
     }
-    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400"
+    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-orange-400 min-w-0"
     placeholder="Lagos, Nigeria"
   />
 </div>
@@ -233,7 +205,7 @@ const [avatarFile, setAvatarFile] =
             type="email"
             value={email}
             disabled
-            className="w-full cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-gray-500"
+            className="w-full cursor-not-allowed rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-gray-500 min-w-0"
           />
 
           <p className="mt-2 text-xs text-gray-500">
@@ -242,17 +214,7 @@ const [avatarFile, setAvatarFile] =
         </div>
 
         {/* BUTTON */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
-        >
-          <Save className="h-4 w-4" />
-
-          {loading
-            ? "Saving changes..."
-            : "Save Changes"}
-        </button>
+        <SubmitButton />
       </div>
     </form>
   )

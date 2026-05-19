@@ -22,7 +22,7 @@ export default async function AccountSettingsPage() {
     .eq("id", user.id)
     .maybeSingle()
   return (
-    <div className="space-y-6 mt-28">
+   <div className="mx-auto mt-24 w-full max-w-3xl space-y-6 px-4 sm:px-6">
       
       {/* Header */}
       <div>

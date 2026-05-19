@@ -31,7 +31,7 @@ const navLinks = [
 
 const accountLinks = [
   {
-    href: "/userdashboard",
+    href: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
   },
@@ -46,7 +46,7 @@ const accountLinks = [
     icon: Bookmark,
   },
   {
-    href: "/account/history",
+    href: "history",
     label: "Reading History",
     icon: History,
   },
@@ -239,7 +239,7 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                    {/* Desktop Account Dropdown */}
+                    {/*  Account Dropdown */}
                     {isAccountDropdownOpen && (
                       <>
                         <div

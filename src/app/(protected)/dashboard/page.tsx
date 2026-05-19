@@ -152,11 +152,12 @@ export default async function DashboardPage() {
 
   return (
     <DashboardClient
-      userName={
+      username={
         profile?.full_name ||
         user.email?.split("@")[0] ||
         "Reader"
       }
+      fullName={profile?.full_name || null}
       stats={stats}
       insights={insights}
       continueReading={continueReading}
