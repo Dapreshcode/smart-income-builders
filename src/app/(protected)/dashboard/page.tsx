@@ -9,11 +9,6 @@ export interface ReadingHistoryItem {
   post_slug: string
   post_title: string
   post_category: string | null
-  post: {
-    slug: string
-    title: string
-    category: string | null
-  }
 }
 
 export interface SavedArticleItem {
@@ -22,11 +17,6 @@ export interface SavedArticleItem {
   post_slug: string
   post_title: string
   post_image: string | null
-  post: {
-    slug: string
-    title: string
-    image: string | null
-  }
 }
 
 export default async function DashboardPage() {
@@ -64,14 +54,7 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false })
     .limit(5)
 
-  const formattedHistory: ReadingHistoryItem[] = (recentHistory || []).map((r: any) => ({
-    ...r,
-    post: {
-      slug: r.post_slug,
-      title: r.post_title,
-      category: r.post_category,
-    },
-  }))
+  const formattedHistory: ReadingHistoryItem[] = recentHistory || []
   const formattedSaved: SavedArticleItem[] = savedArticles || []
 
   const { count: savedCount } = await supabase
