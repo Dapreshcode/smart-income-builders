@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import UserMenu from "@/components/navigation/UserMenu"
@@ -73,169 +73,91 @@ export default function Navbar() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const fetchInProgress = useRef(false)
+  const [authInitialized, setAuthInitialized] = useState(false)
 
   const pathname = usePathname()
   const router = useRouter()
 
-  // Memoize fetch function to avoid recreating
-  const fetchUserAndProfile = useCallback(async (retryCount = 0) => {
-    // Prevent multiple simultaneous fetches
-    if (fetchInProgress.current) {
-      console.log("Fetch already in progress, skipping...")
+
+useEffect(() => {
+  const supabase = createClient()
+  let isMounted = true
+
+  const loadProfile = async (currentUser: any) => {
+    if (!currentUser) {
+      if (isMounted) {
+        setUser(null)
+        setProfile(null)
+        setIsLoading(false)
+        setAuthInitialized(true)
+      }
       return
     }
 
-    try {
-      fetchInProgress.current = true
-      console.log("Starting fetchUserAndProfile...")
-      
-      const supabase = createClient()
-      
-      // Try to get session with timeout
-      const sessionPromise = supabase.auth.getSession()
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Session fetch timeout")), 5000)
-      )
-      
-      const { data: sessionData, error: sessionError } = await Promise.race([
-        sessionPromise,
-        timeoutPromise
-      ]) as any
+    if (isMounted) setUser(currentUser)
 
-      if (sessionError) {
-        console.error("Error fetching session:", sessionError)
-        if (retryCount < 2) {
-          console.log(`Retrying... (${retryCount + 1}/2)`)
-          setTimeout(() => fetchUserAndProfile(retryCount + 1), 1000)
-          return
-        }
-        setUser(null)
-        setProfile(null)
-        setIsLoading(false)
-        return
-      }
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select(`full_name, username, avatar_url, onboarding_completed`)
+      .eq("id", currentUser.id)
+      .maybeSingle()
 
-      if (!sessionData?.session) {
-        console.log("No active session")
-        setUser(null)
-        setProfile(null)
-        setIsLoading(false)
-        return
-      }
+    if (profileError) console.error("Error fetching profile:", profileError)
 
-      // Get user from session
-      const { data: { user: userData }, error: userError } = await supabase.auth.getUser()
-
-      if (userError) {
-        console.error("Error fetching user:", userError)
-        if (retryCount < 2) {
-          console.log(`Retrying... (${retryCount + 1}/2)`)
-          setTimeout(() => fetchUserAndProfile(retryCount + 1), 1000)
-          return
-        }
-        setUser(null)
-        setProfile(null)
-        setIsLoading(false)
-        return
-      }
-
-      console.log("Fetched user:", userData?.email)
-
-      if (!userData) {
-        console.log("No user found")
-        setUser(null)
-        setProfile(null)
-        setIsLoading(false)
-        return
-      }
-
-      setUser(userData)
-
-      // Fetch profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select(`
-          full_name,
-          username,
-          avatar_url,
-          onboarding_completed
-        `)
-        .eq("id", userData.id)
-        .maybeSingle()
-
-      if (profileError) {
-        console.error("Error fetching profile:", profileError)
-      }
-
-      console.log("Fetched profile:", profileData?.username || "No username")
-      setProfile(profileData || null)
+    if (isMounted) {
+      setProfile(profileData)
       setIsLoading(false)
-    } catch (error) {
-      console.error("Error in fetchUserAndProfile:", error)
-      if (retryCount < 2) {
-        console.log(`Retrying after error... (${retryCount + 1}/2)`)
-        setTimeout(() => fetchUserAndProfile(retryCount + 1), 1000)
-      } else {
+      setAuthInitialized(true)
+    }
+  }
+
+  // Re-check session fresh from cookies every time the route changes —
+  // this is what catches the session a server action just set.
+  void supabase.auth.getSession().then(({ data }) => {
+    void loadProfile(data.session?.user ?? null)
+  })
+
+  return () => {
+    isMounted = false
+  }
+}, [pathname]) // <-- key part: re-run on navigation, not just on mount
+
+
+
+
+useEffect(() => {
+  const onScroll = () => setIsScrolled(window.scrollY > 20)
+  const savedTheme = localStorage.getItem("theme")
+  if (savedTheme === "light") {
+    setIsDark(false)
+    document.documentElement.classList.remove("dark")
+  } else {
+    setIsDark(true)
+    document.documentElement.classList.add("dark")
+  }
+  window.addEventListener("scroll", onScroll)
+
+  const supabase = createClient()
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (event, session) => {
+      if (event === "SIGNED_OUT") {
         setUser(null)
         setProfile(null)
         setIsLoading(false)
+        setAuthInitialized(true)
       }
-    } finally {
-      fetchInProgress.current = false
+      // SIGNED_IN / TOKEN_REFRESHED are already caught by the
+      // pathname-keyed effect above on next navigation
     }
-  }, [])
+  )
 
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
+  return () => {
+    window.removeEventListener("scroll", onScroll)
+    subscription.unsubscribe()
+  }
+}, [])
 
-    // Handle theme
-    const savedTheme = localStorage.getItem("theme")
-    if (savedTheme === "light") {
-      setIsDark(false)
-      document.documentElement.classList.remove("dark")
-    } else {
-      setIsDark(true)
-      document.documentElement.classList.add("dark")
-    }
 
-    const supabase = createClient()
-
-    // Initial fetch
-    fetchUserAndProfile()
-
-    // Listen to auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email)
-        
-        if (event === "SIGNED_IN") {
-          setIsLoading(true)
-          // Small delay to ensure session is properly established
-          setTimeout(() => {
-            fetchUserAndProfile()
-          }, 500)
-        } else if (event === "SIGNED_OUT") {
-          setUser(null)
-          setProfile(null)
-          setIsLoading(false)
-        } else if (event === "TOKEN_REFRESHED" && session?.user) {
-          setUser(session.user)
-          // Refresh profile data
-          fetchUserAndProfile()
-        }
-      }
-    )
-
-    window.addEventListener("scroll", onScroll)
-
-    return () => {
-      window.removeEventListener("scroll", onScroll)
-      subscription.unsubscribe()
-    }
-  }, [fetchUserAndProfile])
 
   const toggleTheme = () => {
     const nextDark = !isDark
@@ -250,26 +172,29 @@ export default function Navbar() {
     }
   }
 
-  const goBack = () => router.back()
-  const goForward = () => router.forward()
+  const goBack = () => window.history.back()
+  const goForward = () => window.history.forward()
 
   // Check if user is logged in (has user object)
   const isLoggedIn = !!user
   const isOnDashboard = pathname === "/dashboard"
 
-  console.log("Render state - isLoading:", isLoading, "isLoggedIn:", isLoggedIn)
+  console.log("Render state - authInitialized:", authInitialized, "isLoading:", isLoading, "isLoggedIn:", isLoggedIn, "isOnDashboard:", isOnDashboard)
 
   // Handle avatar click based on current page
   const handleAvatarClick = () => {
     if (!profile?.onboarding_completed) {
+      // If onboarding not completed, go to account page
       router.push("/account")
     } else if (!isOnDashboard) {
+      // If onboarding completed but NOT on dashboard, go to dashboard
       router.push("/dashboard")
     }
+    // If on dashboard, do nothing here - let UserMenu handle the dropdown
   }
 
-  // Loading skeleton
-  if (isLoading) {
+  // Don't show anything until auth is initialized to prevent flash
+  if (!authInitialized) {
     return (
       <motion.header
         initial={{ y: -30, opacity: 0 }}
@@ -401,6 +326,7 @@ export default function Navbar() {
                 {isLoggedIn && (
                   <div className="hidden lg:block">
                     {!profile?.onboarding_completed ? (
+                      // Onboarding not completed - clicking goes to account page
                       <button onClick={handleAvatarClick}>
                         {profile?.avatar_url ? (
                           <img
@@ -417,6 +343,7 @@ export default function Navbar() {
                         )}
                       </button>
                     ) : !isOnDashboard ? (
+                      // Onboarding completed but NOT on dashboard - clicking goes to dashboard
                       <button onClick={handleAvatarClick}>
                         {profile?.avatar_url ? (
                           <img
@@ -433,6 +360,7 @@ export default function Navbar() {
                         )}
                       </button>
                     ) : (
+                      // On dashboard - show dropdown menu
                       <UserMenu
                         fullName={profile?.full_name || null}
                         username={profile?.username || null}

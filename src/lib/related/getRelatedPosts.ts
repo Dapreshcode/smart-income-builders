@@ -1,7 +1,7 @@
 import { getAllPosts } from "@/lib/mdx";
 import { scorePosts } from "./scorePosts";
 
-export function getRelatedPosts(currentPost: any, allPosts: any[], limit = 4) {
+export default function getRelatedPosts(currentPost: any, allPosts: any[], limit = 4) {
   const filtered = allPosts.filter(
     (p) => p.slug !== currentPost.slug
   );

@@ -29,22 +29,20 @@ const iconMap = {
   Layers,
 }
 
-interface PostPreview {
-  slug: string
-  title: string
-  category: string
-}
-
 interface ReadingHistoryItem {
   id: string
   viewed_at: string
-  post: PostPreview | null
+  post_slug: string
+  post_title: string
+  post_category: string | null
 }
 
 interface SavedArticleItem {
   id: string
   created_at: string
-  post: PostPreview | null
+  post_slug: string
+  post_title: string
+  post_image: string | null
 }
 
 interface DashboardClientProps {
@@ -142,7 +140,7 @@ export default function DashboardClient({
             </p>
 
             <h2 className="text-2xl font-bold text-white">
-              {continueReading.post?.title}
+              {continueReading.post_title}
             </h2>
 
             <p className="mt-3 text-sm text-gray-300">
@@ -150,7 +148,7 @@ export default function DashboardClient({
             </p>
 
             <Link
-              href={`/blog/${continueReading.post?.slug}`}
+              href={`/blog/${continueReading.post_slug}`}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-400"
             >
               Resume Article
@@ -219,16 +217,8 @@ export default function DashboardClient({
 
         {/* ACTIVITY */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <RecentHistory history={recentHistory.map(item => ({
-            id: item.id,
-            viewed_at: item.viewed_at,
-            post: item.post
-          }))} />
-          <SavedArticlesPreview articles={savedArticles.map(item => ({
-            id: item.id,
-            created_at: item.created_at,
-            post: item.post
-          }))} />
+          <RecentHistory history={recentHistory} />
+          <SavedArticlesPreview articles={savedArticles} />
         </div>
 
         {/* QUICK ACTIONS */}

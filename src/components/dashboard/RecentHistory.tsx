@@ -4,20 +4,18 @@ import Link from "next/link"
 import { Clock } from "lucide-react"
 import { motion } from "framer-motion"
 
-interface HistoryItem {
+interface ReadingHistoryItem {
   id: string
   viewed_at: string
-  post: {
-    slug: string
-    title: string
-    category: string
-  } | null
+  post_slug: string
+  post_title: string
+  post_category: string | null
 }
 
 export default function RecentHistory({
   history,
 }: {
-  history: HistoryItem[]
+  history: ReadingHistoryItem[]
 }) {
   return (
     <motion.div
@@ -56,15 +54,17 @@ export default function RecentHistory({
               }}
             >
               <Link
-                href={`/blog/${item.post?.slug}`}
+                href={`/blog/${item.post_slug}`}
                 className="block rounded-xl border border-white/5 bg-white/5 p-3 transition hover:bg-white/10"
               >
-                <p className="text-[10px] uppercase tracking-wide text-orange-300">
-                  {item.post?.category}
-                </p>
+                {item.post_category && (
+                  <p className="text-[10px] uppercase tracking-wide text-orange-300">
+                    {item.post_category}
+                  </p>
+                )}
 
                 <h4 className="mt-1 line-clamp-2 text-sm font-medium text-white">
-                  {item.post?.title}
+                  {item.post_title}
                 </h4>
 
                 <p className="mt-2 flex items-center gap-1 text-xs text-gray-500">

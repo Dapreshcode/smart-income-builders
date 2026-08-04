@@ -1,7 +1,7 @@
 import { getPost, getAllPosts } from "@/lib/mdx";
 import BlogDetail from "@/components/blog/BlogDetail";
 import Script from "next/script";
-import { getRelatedPosts } from "@/lib/related/getRelatedPosts";
+import getRelatedPosts from "@/lib/related/getRelatedPosts";
 import { injectAffiliatePosts } from "@/lib/related/injectAffiliatePosts";
 import ArticleSidebar from "@/components/blog/ArticleSidebar";
 import { InlineRelated } from "@/components/related/InlineRelated";

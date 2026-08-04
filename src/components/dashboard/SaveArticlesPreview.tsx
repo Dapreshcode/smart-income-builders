@@ -7,11 +7,9 @@ import { motion } from "framer-motion"
 interface SavedArticleItem {
   id: string
   created_at: string
-  post: {
-    slug: string
-    title: string
-    category: string
-  } | null
+  post_slug: string
+  post_title: string
+  post_image: string | null
 }
 
 export default function SavedArticlesPreview({
@@ -56,17 +54,21 @@ export default function SavedArticlesPreview({
               }}
             >
               <Link
-                href={`/blog/${item.post?.slug}`}
+                href={`/blog/${item.post_slug}`}
                 className="block rounded-xl border border-white/5 bg-white/5 p-3 transition hover:bg-white/10"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[10px] uppercase tracking-wide text-orange-300">
-                      {item.post?.category}
-                    </p>
+                <div className="flex items-start justify-between gap-3">
+                  {item.post_image && (
+                    <img
+                      src={item.post_image}
+                      alt=""
+                      className="h-12 w-12 flex-shrink-0 rounded-lg object-cover"
+                    />
+                  )}
 
-                    <h4 className="mt-1 line-clamp-2 text-sm font-medium text-white">
-                      {item.post?.title}
+                  <div className="flex-1">
+                    <h4 className="line-clamp-2 text-sm font-medium text-white">
+                      {item.post_title}
                     </h4>
                   </div>
 

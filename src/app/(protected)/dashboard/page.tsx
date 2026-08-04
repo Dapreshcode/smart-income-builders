@@ -3,22 +3,30 @@ import { createClient } from "@/lib/supabase/server"
 import { getUserAnalytics } from "@/lib/dashboard/analytics"
 import DashboardClient from "@/components/dashboard/DashboardClient"
 
-export interface PostPreview {
-  slug: string
-  title: string
-  category: string
-}
-
 export interface ReadingHistoryItem {
   id: string
   viewed_at: string
-  post: PostPreview | null
+  post_slug: string
+  post_title: string
+  post_category: string | null
+  post: {
+    slug: string
+    title: string
+    category: string | null
+  }
 }
 
 export interface SavedArticleItem {
   id: string
   created_at: string
-  post: PostPreview | null
+  post_slug: string
+  post_title: string
+  post_image: string | null
+  post: {
+    slug: string
+    title: string
+    image: string | null
+  }
 }
 
 export default async function DashboardPage() {
@@ -32,72 +40,47 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  // PROFILE - Fixed to use profiles table instead of subscribers
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single()
 
-  // ANALYTICS
   const analytics = await getUserAnalytics(user.id)
 
-  // RECENT HISTORY - Fixed the nested query structure
+  // RECENT HISTORY — no join needed, post_slug/title/category live on the row
   const { data: recentHistory } = await supabase
     .from("reading_history")
-    .select(`
-      id,
-      viewed_at,
-      post:posts (
-        slug,
-        title,
-        category
-      )
-    `)
+    .select("id, viewed_at, post_slug, post_title, post_category")
     .eq("user_id", user.id)
     .order("viewed_at", { ascending: false })
     .limit(5)
 
-  // SAVED ARTICLES PREVIEW - Fixed the nested query structure
+  // SAVED ARTICLES — same, using bookmarks' own columns
   const { data: savedArticles } = await supabase
-    .from("saved_articles")
-    .select(`
-      id,
-      created_at,
-      post:posts (
-        slug,
-        title,
-        category
-      )
-    `)
+    .from("bookmarks")
+    .select("id, created_at, post_slug, post_title, post_image")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(5)
 
-  // NORMALIZED HISTORY - Fixed to handle correct data structure
-  const formattedHistory: ReadingHistoryItem[] = (recentHistory || []).map((item: any) => ({
-    id: item.id,
-    viewed_at: item.viewed_at,
-    post: item.post, // This is now directly the post object, not an array
+  const formattedHistory: ReadingHistoryItem[] = (recentHistory || []).map((r: any) => ({
+    ...r,
+    post: {
+      slug: r.post_slug,
+      title: r.post_title,
+      category: r.post_category,
+    },
   }))
+  const formattedSaved: SavedArticleItem[] = savedArticles || []
 
-  // NORMALIZED SAVED ARTICLES - Fixed to handle correct data structure
-  const formattedSaved: SavedArticleItem[] = (savedArticles || []).map((item: any) => ({
-    id: item.id,
-    created_at: item.created_at,
-    post: item.post, // This is now directly the post object, not an array
-  }))
-
-  // REAL BOOKMARK COUNT - This is correct
   const { count: savedCount } = await supabase
-    .from("saved_articles")
+    .from("bookmarks")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id)
 
-  // CONTINUE READING
   const continueReading = formattedHistory.length > 0 ? formattedHistory[0] : null
 
-  // DASHBOARD STATS
   const stats = [
     {
       title: "Articles Read",
