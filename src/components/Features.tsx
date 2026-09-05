@@ -7,21 +7,24 @@ import { motion } from "framer-motion";
 const Features = () => {
   const data = [
     {
-      id: 1,
-      title: "Online Income Systems",
-      desc: "Step-by-step systems to start earning income online.",
+        id: "online-income-systems",
+    title: "Online Income Systems",
+    description:
+      "Practical systems for building legitimate online income streams.",
       icon: DollarSign,
     },
     {
-      id: 2,
-      title: "Email Marketing",
-      desc: "Build and monetize your audience the right way.",
+       id: "audience-marketing",
+    title: "Audience & Marketing",
+    description:
+      "Strategies for attracting, building, nurturing, and converting an audience.",
       icon: Mail,
     },
     {
-      id: 3,
-      title: "Growth Guides",
-      desc: "Discover tools and frameworks to scale faster.",
+      id: "growth-guides",
+    title: "Growth Guides",
+    description:
+      "Tools, frameworks, automation, and systems for growing more efficiently.",
       icon: Wrench,
     },
   ];
@@ -67,7 +70,7 @@ const Features = () => {
                       </h3>
 
                       <p className="mt-3 text-sm text-gray-400 leading-6">
-                        {item.desc}
+                        {item.description}
                       </p>
                     </div>
                   </div>

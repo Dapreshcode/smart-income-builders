@@ -67,7 +67,7 @@ export async function signInWithEmail(formData: FormData) {
     return { ok: false, message: error.message }
   }
 
-  redirect("/account")
+  redirect("/dashboard")
 }
 
 export async function signOutUser() {
