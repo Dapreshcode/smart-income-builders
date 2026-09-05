@@ -15,7 +15,7 @@ export default async function CategoryPage({ params }: any) {
       category: post.frontmatter?.category || "Uncategorized",
       date: post.frontmatter?.date || "",
       tags: post.frontmatter?.tags || [],
-      readingTime: post.frontmatter?.readingTime || "",
+      readingTime: post.frontmatter?.readTime || "",
     },
   }));
 
